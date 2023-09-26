@@ -35,6 +35,14 @@ async def fsm_start(call: types.CallbackQuery):
         await FormStates.nickname.set()
 
 
+async def update_start(call: types.CallbackQuery):
+    await bot.send_message(
+        chat_id=call.message.chat.id,
+        text="Send me your Nickname"
+    )
+    await FormStates.nickname.set()
+
+
 async def load_nickname(message: types.Message,
                         state: FSMContext):
     async with state.proxy() as data:
@@ -73,7 +81,7 @@ async def load_age(message: types.Message,
             await message.reply(
                 "Send me your occupation, please"
             )
-    except ValueError:
+    except ValueError as e:
         await state.finish()
         await message.reply(
             text="I said use numeric one, register again"
@@ -109,17 +117,41 @@ async def load_photo(message: types.Message,
         destination_dir=DESTINATION_DIR
     )
     async with state.proxy() as data:
-        Database().sql_insert_user_form_command(
-            telegram_id=message.from_user.id,
-            nickname=data["nickname"],
-            bio=data["bio"],
-            age=data["age"],
-            occupation=data["occupation"],
-            married=data["married"],
-            photo=path.name,
+        user = Database().sql_select_user_form_command(
+            telegram_id=message.from_user.id
         )
+        if user:
+            Database().sql_update_user_form_command(
+                nickname=data["nickname"],
+                bio=data["bio"],
+                age=data["age"],
+                occupation=data["occupation"],
+                married=data["married"],
+                photo=path.name,
+                telegram_id=message.from_user.id
+            )
+        else:
+            Database().sql_insert_user_form_command(
+                telegram_id=message.from_user.id,
+                nickname=data["nickname"],
+                bio=data["bio"],
+                age=data["age"],
+                occupation=data["occupation"],
+                married=data["married"],
+                photo=path.name,
+            )
         await message.reply(text="Registered Successfully")
         await state.finish()
+
+
+async def delete_detect_user_form_call(call: types.CallbackQuery):
+    Database().sql_delete_user_form_command(
+        telegram_id=call.from_user.id
+    )
+    await bot.send_message(
+        chat_id=call.from_user.id,
+        text="You have deleted form successfully"
+    )
 
 
 def register_fsm_form_handlers(dp: Dispatcher):
@@ -137,3 +169,7 @@ def register_fsm_form_handlers(dp: Dispatcher):
                                 content_types=['text'])
     dp.register_message_handler(load_photo, state=FormStates.photo,
                                 content_types=types.ContentTypes.PHOTO)
+    dp.register_callback_query_handler(update_start,
+                                       lambda call: call.data == "edit_profile")
+    dp.register_callback_query_handler(delete_detect_user_form_call,
+                                       lambda call: call.data == "delete_profile")

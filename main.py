@@ -1,6 +1,6 @@
 from aiogram import executor
 from config import dp
-from handlers import start, callback, fsm_form, chat_action
+from handlers import start, callback, chat_actions, fsm_form, reference
 from database import sql_commands
 
 
@@ -12,7 +12,8 @@ async def onstart_up(_):
 start.register_start_handlers(dp=dp)
 callback.register_callback_handlers(dp=dp)
 fsm_form.register_fsm_form_handlers(dp=dp)
-chat_action.register_chat_actions_handlers(dp=dp)
+reference.register_reference_handlers(dp=dp)
+chat_actions.register_chat_actions_handlers(dp=dp)
 
 if __name__ == "__main__":
     executor.start_polling(

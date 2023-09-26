@@ -15,7 +15,12 @@ async def echo_ban(message: types.Message):
                 ban_user = Database().sql_select_ban_user_command(
                     telegram_id=message.from_user.id
                 )
-                if ban_user[0]['count'] >= 3:
+
+                if not ban_user:
+                    Database().sql_insert_ban_user_command(
+                        telegram_id=message.from_user.id
+                    )
+                elif ban_user[0]['count'] >= 3:
                     await bot.send_message(
                         chat_id=message.from_user.id,
                         text=message.text
@@ -23,10 +28,6 @@ async def echo_ban(message: types.Message):
                 elif ban_user:
                     print(ban_user)
                     Database().sql_update_ban_user_count_command(
-                        telegram_id=message.from_user.id
-                    )
-                else:
-                    Database().sql_insert_ban_user_command(
                         telegram_id=message.from_user.id
                     )
                 await bot.delete_message(
