@@ -30,6 +30,10 @@ async def start_keyboard():
         "5 Latest News",
         callback_data="latest_news"
     )
+    async_button = InlineKeyboardButton(
+        "5 Latest News From Other Source",
+        callback_data="async_latest_news"
+    )
     markup.add(
         questionnaire_button
     ).add(
@@ -42,6 +46,8 @@ async def start_keyboard():
         referral_button
     ).add(
         news_button
+    ).add(
+        async_button
     )
     return markup
 

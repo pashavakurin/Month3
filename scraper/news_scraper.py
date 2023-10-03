@@ -6,7 +6,7 @@ class NewsScraper:
     PLUS_URL = "https://24.kg/"
     URL = "https://24.kg/"
     LINK_XPATH = '//div[@class="title"]/a/@href'
-    TITLE_XPATH = '//div[@class="title"]/a/strong'
+    TITLE_XPATH = '//div[@class="title"]/a/strong/text()'
 
 
     def parse_data(self):

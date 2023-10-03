@@ -13,6 +13,7 @@ from keyboards.inline_buttons import (
 import random
 
 from scraper.news_scraper import NewsScraper
+from scraper.async_news import AsyncScraper
 
 
 async def start_questionnaire_call(call: types.CallbackQuery):
@@ -121,6 +122,18 @@ async def latest_news_call(call: types.CallbackQuery):
             text=scraper.PLUS_URL + link
         )
 
+
+async def async_news_call(call: types.CallbackQuery):
+    scraper = AsyncScraper()
+    news = scraper.parse_date()
+
+    for link in news:
+        await bot.send_message(
+            chat_id=call.from_user.id,
+            text=scraper.PLUS_URL + link
+        )
+
+
 def register_callback_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(start_questionnaire_call,
                                        lambda call: call.data == "start_questionnaire")
@@ -136,3 +149,5 @@ def register_callback_handlers(dp: Dispatcher):
                                        lambda call: "_like_" in call.data)
     dp.register_callback_query_handler(latest_news_call,
                                        lambda call: call.data == "latest_news")
+    dp.register_callback_query_handler(async_news_call,
+                                       lambda call: call.data == "async_latest_news")
